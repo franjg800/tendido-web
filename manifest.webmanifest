@@ -7,12 +7,61 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#12100E",
   "theme_color": "#12100E",
-  "related_applications": [{ "platform": "webapp", "url": "manifest.webmanifest" }],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "manifest.webmanifest"
+    }
+  ],
   "icons": [
-    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "news",
+    "sports",
+    "reference"
+  ],
+  "screenshots": [
+    {
+      "src": "captura-ordenador-1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Portada: lo más destacado y las últimas tardes"
+    },
+    {
+      "src": "captura-ordenador-2.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Escalafón con podio y tabla completa"
+    },
+    {
+      "src": "captura-ordenador-3.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ficha de torero a dos paneles"
+    },
+    {
+      "src": "captura-movil-1.png",
+      "sizes": "824x1830",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tendido en el móvil"
+    }
   ]
 }

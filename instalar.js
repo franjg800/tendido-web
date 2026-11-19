@@ -46,6 +46,7 @@
     padding: 10px max(20px, env(safe-area-inset-left, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
     transform: translateY(100%); transition: transform .42s cubic-bezier(.2,.9,.25,1); box-sizing: border-box; }
   #ins.abierto .velo { opacity: 1; } #ins.abierto .hoja { transform: none; }
+  @media (min-width: 900px) { #ins { align-items: center; } #ins .hoja { border-radius: 28px; border: 1px solid var(--linea); } #ins .asa { display: none; } }
   #ins .asa { width: 38px; height: 4px; border-radius: 2px; background: var(--alta); margin: 0 auto 18px; }
   #ins .cab { display: flex; gap: 14px; align-items: center; }
   #ins .cab img { width: 58px; height: 58px; border-radius: 14px; flex: none; box-shadow: 0 0 0 1px var(--linea); }
@@ -170,7 +171,8 @@
       flecha: false,
     };
     return {
-      sub: 'Tendido está pensada para el móvil: abre esta página en tu teléfono y te enseñará cómo ponerla en la pantalla de inicio. En el ordenador también puedes instalarla:',
+      titulo: 'Instala Tendido en tu ordenador',
+      sub: 'Se abrirá en su propia ventana, con su icono en el escritorio o en la barra de tareas, y también funcionará sin conexión. Y si quieres llevártela al móvil, abre esta misma dirección en el teléfono y te enseñará cómo.',
       lista: p(`En Chrome o Edge, toca el icono de instalar de la barra de direcciones, a la derecha.`) +
              p(`En Safari del Mac, ve a <b>Archivo</b> y elige <b>Añadir al Dock</b>.`),
       enlace: true, flecha: false,
@@ -198,7 +200,7 @@
     const url = location.origin + location.pathname;
     raiz.innerHTML = `<div class="velo"></div><div class="hoja">
       <div class="asa"></div>
-      <div class="cab"><img src="icono-180.png" alt=""><h2 id="ins-titulo">Instala Tendido en tu móvil</h2></div>
+      <div class="cab"><img src="icono-180.png" alt=""><h2 id="ins-titulo">${x.titulo || 'Instala Tendido en tu móvil'}</h2></div>
       <p class="sub">${x.sub}</p>
       <div class="botones" style="margin-top:18px"><button class="principal" id="ins-directo" ${aviso ? '' : 'hidden'}>Instalar Tendido</button></div>
       ${aviso ? '<p class="nota" style="margin-top:10px">O hazlo a mano desde el menú del navegador:</p>' : ''}

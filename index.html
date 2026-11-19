@@ -99,6 +99,15 @@ addEventListener('popstate', () => {
   setTimeout(() => { if (t._activo && !t._puesto) { history.pushState({ tendido: 1 }, ''); t._puesto = true; } }, 60);
 });
 
+// En el ordenador, la tecla Esc hace lo mismo que el botón de atrás
+addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.defaultPrevented) return;
+  const ins = document.getElementById('ins');
+  if (ins && !ins.hidden) return; // el aviso de instalación gestiona su propio Esc
+  const t = window.tendido;
+  if (t._volver && t._activo) { e.preventDefault(); t._volver(); }
+});
+
 // ¿Admite este navegador WebAssembly con recolector de basura (Safari 18.2 / iOS 18.2 o posterior)?
 const gc = typeof WebAssembly === 'object' && WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 95, 1, 120, 0]));
 if (!gc) {
