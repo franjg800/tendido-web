@@ -1,0 +1,40 @@
+TENDIDO · versión web
+=====================
+
+Esta carpeta es la web completa. No necesita servidor especial: solo hay que subir
+TODO el contenido de esta carpeta (incluidos los archivos que empiezan por punto).
+
+Cómo subirla
+------------
+- Vercel: entra en vercel.com/new, arrastra esta carpeta y pulsa Deploy.
+  (o, con la terminal abierta dentro de la carpeta: npx vercel --prod)
+- Hosting normal (Apache, cPanel, Plesk…): sube el contenido por FTP. El archivo
+  .htaccess ya pone bien los tipos de archivo (.wasm) y la caché.
+- Tiene que ir con https (Vercel y casi todos los hostings lo ponen solos).
+  Sin https no funcionan ni la instalación ni el modo sin conexión.
+
+Qué incluye
+-----------
+- La app entera, igual que la de Android: Hoy, Calendario, Escalafón, Explorar,
+  Mi tendido, pasaporte, tarjetero, logros, perfil, fantasy, compartir…
+- Medallas en 3D (WebGL), con los mismos modelos que en Android.
+- Mapa de plazas real (MapLibre + OpenFreeMap, gratis y sin clave).
+- Tutorial de instalación: sale solo la primera vez que alguien entra desde el
+  navegador. Después queda el botón «Instalar» en Hoy y en Mi tendido › Ajustes.
+  Si la web ya está abierta como app (desde el icono), el botón no aparece.
+- Funciona sin conexión una vez abierta (service worker).
+
+Modo demo
+---------
+Añade ?demo al final de la dirección para verla con un pasaporte y un perfil de
+ejemplo. Ejemplos:
+  https://tu-web/?demo
+  https://tu-web/?demo&ir=pasaporte
+  https://tu-web/?demo&ir=logro0      (logro0 … logro11)
+  https://tu-web/?demo&ir=tarjetero
+  https://tu-web/?demo&ir=mapa
+
+Requisitos
+----------
+iPhone con iOS 18.2 o posterior (Safari). Android con Chrome reciente.
+Con un móvil más antiguo sale un aviso pidiendo actualizar.

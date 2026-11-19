@@ -1,0 +1,2 @@
+Pon aquí las ilustraciones: <id-de-la-plaza>.png, 1024x1024, fondo transparente.
+Añade el id a SELLOS_ILUSTRADOS en ui/SelloCiudad.kt.

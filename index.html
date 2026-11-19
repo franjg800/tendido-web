@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tendido</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Toros: últimas tardes, escalafón, carteles y tu pasaporte de aficionado.">
+<meta name="theme-color" content="#12100E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tendido">
+<link rel="apple-touch-icon" href="icono-180.png">
+<link rel="icon" type="image/png" href="icono-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #12100E; overflow: hidden; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  /* La app ocupa la pantalla menos las zonas del notch y de la barra de inicio del iPhone */
+  #app { position: fixed; top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px); }
+  #carga { position: fixed; inset: 0; display: grid; place-items: center; background: #12100E; color: #F4EEE3; font-family: Georgia, "Times New Roman", serif; z-index: 10; transition: opacity .4s; }
+  #carga.fuera { opacity: 0; pointer-events: none; }
+  .caja { display: grid; justify-items: center; gap: 18px; padding: 24px; text-align: center; max-width: 320px; }
+  .caja img { width: 92px; height: 92px; border-radius: 22px; }
+  .caja h1 { margin: 0; font-weight: 700; font-size: 34px; letter-spacing: .01em; }
+  .caja p { margin: 0; color: #B9AF9F; font: 15px/1.45 -apple-system, system-ui, sans-serif; }
+  .barra { width: 160px; height: 3px; border-radius: 2px; background: #29241F; overflow: hidden; }
+  .barra i { display: block; width: 40%; height: 100%; background: #C42B30; border-radius: 2px; animation: va 1.1s ease-in-out infinite; }
+  @keyframes va { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+  #viejo { display: none; }
+  #viejo b { color: #F4EEE3; }
+  @media (prefers-reduced-motion: reduce) { .barra i { animation: none; width: 100%; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="carga">
+  <div class="caja" id="cargando">
+    <img src="icono-180.png" alt="">
+    <h1>Tendido</h1>
+    <div class="barra"><i></i></div>
+    <p id="msg">Preparando la plaza…</p>
+  </div>
+  <div class="caja" id="viejo">
+    <img src="icono-180.png" alt="">
+    <h1>Tendido</h1>
+    <p>Tu navegador es demasiado antiguo para abrir Tendido.</p>
+    <p>En el iPhone necesitas <b>iOS 18.2 o posterior</b>. Actualízalo en <b>Ajustes → General → Actualización de software</b> y vuelve a entrar.</p>
+  </div>
+</div>
+<script src="medalla.js"></script>
+<script src="mapa.js"></script>
+<script src="instalar.js"></script>
+<script>
+// Puente entre la app (Kotlin) y el navegador: color de barras, compartir, fotos, avisos y botón atrás.
+window.tendido = {
+  color(c) { document.querySelector('meta[name="theme-color"]').setAttribute('content', c); document.body.style.background = c; document.documentElement.style.background = c; },
+  notificar(t, x) {
+    try {
+      if (!('Notification' in window)) return;
+      // Con service worker (obligatorio en el iPhone, con la app añadida a la pantalla de inicio)
+      const mostrar = () => {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(t, { body: x, icon: 'icono-192.png', badge: 'icono-192.png' }));
+        else new Notification(t, { body: x, icon: 'icono-192.png' });
+      };
+      if (Notification.permission === 'granted') mostrar();
+      else if (Notification.permission !== 'denied') Notification.requestPermission().then(p => { if (p === 'granted') mostrar(); });
+    } catch (e) {}
+  },
+  async compartir(nombre, b64, texto) {
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const archivo = new File([bytes], nombre + '.png', { type: 'image/png' });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [archivo] })) { await navigator.share({ files: [archivo], text: texto }); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(archivo); a.download = archivo.name; document.body.appendChild(a); a.click(); a.remove();
+  },
+  elegirFoto(cb) {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*';
+    i.onchange = async () => {
+      const f = i.files && i.files[0]; if (!f) return;
+      try {
+        const img = await createImageBitmap(f, { imageOrientation: 'from-image' });
+        const lado = Math.min(img.width, img.height), c = document.createElement('canvas'); c.width = c.height = 640;
+        c.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, 640, 640);
+        cb(c.toDataURL('image/jpeg', 0.88).split(',')[1]);
+      } catch (e) { console.error(e); }
+    };
+    i.click();
+  },
+  // Atrás del navegador o gesto de volver: una entrada en el historial mientras haya pantalla a la que volver
+  _volver: null, _activo: false, _puesto: false,
+  alVolver(cb) { this._volver = cb; },
+  atrasActivo(a) { this._activo = a; if (a && !this._puesto) { history.pushState({ tendido: 1 }, ''); this._puesto = true; } },
+};
+addEventListener('popstate', () => {
+  const t = window.tendido; t._puesto = false;
+  if (t._volver && t._activo) t._volver();
+  setTimeout(() => { if (t._activo && !t._puesto) { history.pushState({ tendido: 1 }, ''); t._puesto = true; } }, 60);
+});
+
+// ¿Admite este navegador WebAssembly con recolector de basura (Safari 18.2 / iOS 18.2 o posterior)?
+const gc = typeof WebAssembly === 'object' && WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 95, 1, 120, 0]));
+if (!gc) {
+  document.getElementById('cargando').style.display = 'none';
+  document.getElementById('viejo').style.display = 'grid';
+} else {
+  // Cuando la app pinta su primer fotograma, se quita la pantalla de carga
+  new MutationObserver((m, o) => {
+    if (document.querySelector('#app canvas')) { o.disconnect(); setTimeout(() => { document.getElementById('carga').classList.add('fuera'); window.tendidoInstalar && window.tendidoInstalar.primeraVez(); }, 300); }
+  }).observe(document.getElementById('app'), { childList: true, subtree: true });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const s = document.createElement('script'); s.src = 'tendido.js'; s.type = 'application/javascript';
+  s.onerror = () => { document.getElementById('msg').textContent = 'No se ha podido cargar. Comprueba tu conexión y vuelve a entrar.'; };
+  document.body.appendChild(s);
+}
+</script>
+</body>
+</html>
