@@ -65,7 +65,9 @@ window.tendido = {
   },
   notificar(t, x, d) {
     try {
-      if (!('Notification' in window)) return;
+      const aviso = m => { const e = document.createElement('div'); e.textContent = m; e.style.cssText = 'position:fixed;left:16px;right:16px;bottom:96px;z-index:99999;background:#F6F0E4;color:#12100E;padding:14px 16px;border-radius:14px;font:15px/1.35 system-ui;box-shadow:0 6px 24px #0008'; document.body.appendChild(e); setTimeout(() => e.remove(), 7000); };
+      if (!('Notification' in window)) { aviso('Este navegador no permite notificaciones. En iPhone, añade Tendido a la pantalla de inicio y ábrela desde ahí.'); return; }
+      if (Notification.permission === 'denied') { aviso('Las notificaciones de Tendido están bloqueadas. Actívalas en los ajustes del navegador para este sitio.'); return; }
       // Con service worker (obligatorio en el iPhone, con la app añadida a la pantalla de inicio)
       const mostrar = () => {
         const op = { body: x, icon: 'icono-192.png', badge: 'icono-192.png', data: { destino: d || '' } };
@@ -74,7 +76,7 @@ window.tendido = {
         else plano();
       };
       if (Notification.permission === 'granted') mostrar();
-      else if (Notification.permission !== 'denied') Notification.requestPermission().then(p => { if (p === 'granted') mostrar(); });
+      else if (Notification.permission !== 'denied') Notification.requestPermission().then(p => { if (p === 'granted') mostrar(); else aviso('Sin permiso no podemos avisarte. Pulsa de nuevo y acepta.'); });
     } catch (e) {}
   },
   async compartir(nombre, b64, texto) {
