@@ -55,12 +55,20 @@
 // Puente entre la app (Kotlin) y el navegador: color de barras, compartir, fotos, avisos y botón atrás.
 window.tendido = {
   color(c) { document.querySelector('meta[name="theme-color"]').setAttribute('content', c); document.body.style.background = c; document.documentElement.style.background = c; },
-  notificar(t, x) {
+  // Destino de una notificación tocada: llega por la dirección (?d=) o por un mensaje del service worker.
+  alDestino(cb) {
+    try {
+      const u = new URL(location.href), d = u.searchParams.get('d');
+      if (d) { u.searchParams.delete('d'); history.replaceState(null, '', u.pathname + u.search + u.hash); cb(d); }
+      if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.destino) cb(e.data.destino); });
+    } catch (e) {}
+  },
+  notificar(t, x, d) {
     try {
       if (!('Notification' in window)) return;
       // Con service worker (obligatorio en el iPhone, con la app añadida a la pantalla de inicio)
       const mostrar = () => {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(t, { body: x, icon: 'icono-192.png', badge: 'icono-192.png' }));
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(t, { body: x, icon: 'icono-192.png', badge: 'icono-192.png', data: { destino: d || '' } }));
         else new Notification(t, { body: x, icon: 'icono-192.png' });
       };
       if (Notification.permission === 'granted') mostrar();

@@ -1,5 +1,5 @@
 // Service worker de Tendido: guarda la app para abrirla sin conexión y muestra los avisos.
-const CACHE = 'tendido-v18';
+const CACHE = 'tendido-v19';
 const SIEMPRE_RED = /\/(index\.html|tendido\.js|manifest\.webmanifest|medalla\.js|mapa\.js|instalar\.js)?$/;
 
 self.addEventListener('install', e => {
@@ -29,5 +29,9 @@ self.addEventListener('fetch', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(self.clients.matchAll({ type: 'window' }).then(l => l.length ? l[0].focus() : self.clients.openWindow('./')));
+  const d = (e.notification.data && e.notification.data.destino) || '';
+  e.waitUntil(self.clients.matchAll({ type: 'window' }).then(l => {
+    if (l.length) { l[0].postMessage({ destino: d }); return l[0].focus(); }
+    return self.clients.openWindow(d ? './?d=' + encodeURIComponent(d) : './');
+  }));
 });
