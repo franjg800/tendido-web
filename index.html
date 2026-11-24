@@ -68,8 +68,10 @@ window.tendido = {
       if (!('Notification' in window)) return;
       // Con service worker (obligatorio en el iPhone, con la app añadida a la pantalla de inicio)
       const mostrar = () => {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(r => r.showNotification(t, { body: x, icon: 'icono-192.png', badge: 'icono-192.png', data: { destino: d || '' } }));
-        else new Notification(t, { body: x, icon: 'icono-192.png' });
+        const op = { body: x, icon: 'icono-192.png', badge: 'icono-192.png', data: { destino: d || '' } };
+        const plano = () => { try { new Notification(t, op); } catch (e) {} };
+        if (navigator.serviceWorker) Promise.race([navigator.serviceWorker.ready, new Promise(r => setTimeout(() => r(null), 2500))]).then(r => r ? r.showNotification(t, op) : plano()).catch(plano);
+        else plano();
       };
       if (Notification.permission === 'granted') mostrar();
       else if (Notification.permission !== 'denied') Notification.requestPermission().then(p => { if (p === 'granted') mostrar(); });
