@@ -52,6 +52,13 @@
 <script src="mapa.js"></script>
 <script src="instalar.js"></script>
 <script>
+// Vuelta de Google o Apple: el token llega en #access_token=… Se guarda para la app y se quita de la dirección.
+(function () { try {
+  const h = location.hash || '';
+  if (h.indexOf('access_token=') >= 0 || h.indexOf('error_description=') >= 0) { window.__oauth = h.slice(1); history.replaceState(null, '', location.pathname + location.search); }
+} catch (e) {} })();
+</script>
+<script>
 // Puente entre la app (Kotlin) y el navegador: color de barras, compartir, fotos, avisos y botón atrás.
 window.tendido = {
   color(c) { document.querySelector('meta[name="theme-color"]').setAttribute('content', c); document.body.style.background = c; document.documentElement.style.background = c; },
