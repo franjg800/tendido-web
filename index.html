@@ -70,7 +70,7 @@ window.tendido = {
       if (Notification.permission === 'denied') { aviso('Las notificaciones de Tendido están bloqueadas. Actívalas en los ajustes del navegador para este sitio.'); return; }
       // Con service worker (obligatorio en el iPhone, con la app añadida a la pantalla de inicio)
       const mostrar = () => {
-        const op = { body: x, icon: 'icono-192.png', badge: 'icono-192.png', data: { destino: d || '' } };
+        const op = { body: x, icon: 'icono-192.png', badge: 'badge-96.png', data: { destino: d || '' } };
         const plano = () => { try { new Notification(t, op); } catch (e) {} };
         if (navigator.serviceWorker) Promise.race([navigator.serviceWorker.ready, new Promise(r => setTimeout(() => r(null), 2500))]).then(r => r ? r.showNotification(t, op) : plano()).catch(plano);
         else plano();
