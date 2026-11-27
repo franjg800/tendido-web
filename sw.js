@@ -1,5 +1,5 @@
 // Service worker de Tendido: guarda la app para abrirla sin conexión y muestra los avisos.
-const CACHE = 'tendido-v33';
+const CACHE = 'tendido-v34';
 const SIEMPRE_RED = /\/(index\.html|tendido\.js|manifest\.webmanifest|medalla\.js|mapa\.js|instalar\.js)?$/;
 
 self.addEventListener('install', e => {
